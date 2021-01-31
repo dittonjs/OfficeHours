@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0" xmlns:blti="http://www.imsglobal.org/xsd/imsbasiclti_v1p0" xmlns:lticm="http://www.imsglobal.org/xsd/imslticm_v1p0" xmlns:lticp="http://www.imsglobal.org/xsd/imslticp_v1p0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0p1.xsd http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">
+  <blti:title>Node LTI Starter App</blti:title>
+  <blti:description>This is a default LTI Application using Node JS.</blti:description>
+  <blti:launch_url>http://localhost:3000/lti_launches</blti:launch_url>
+  <blti:extensions platform="canvas.instructure.com">
+    <lticm:options name="account_navigation">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/account_navigation.png</lticm:property>
+      <lticm:property name="text">account_navigation Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+      
+      <lticm:options name="labels">
+        <lticm:property name="en">Account Navigation Label</lticm:property>
+        <lticm:property name="es">Biblioteca de Imágenes</lticm:property>
+      </lticm:options>
+    </lticm:options>
+    <lticm:options name="assignment_menu">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/assignment_menu.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelection</lticm:property>
+      <lticm:property name="text">assignment_menu Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="assignment_selection">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/assignment_selection.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelectionRequest</lticm:property>
+      <lticm:property name="text">assignment_selection Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="course_home_sub_navigation">
+      <lticm:property name="canvas_icon_class">icon-commons</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/course_home_sub_navigation.png</lticm:property>
+      <lticm:property name="text">course_home_sub_navigation Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="course_navigation">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/course_navigation.png</lticm:property>
+      <lticm:property name="text">course_navigation Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+      
+      <lticm:options name="labels">
+        <lticm:property name="en">Course Navigation Label</lticm:property>
+        <lticm:property name="es">Biblioteca de Imágenes</lticm:property>
+      </lticm:options>
+    </lticm:options>
+    <lticm:options name="course_settings_sub_navigation">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/course_settings_sub_navigation.png</lticm:property>
+      <lticm:property name="text">course_settings_sub_navigation Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="discussion_topic_menu">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/discussion_topic_menu.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelection</lticm:property>
+      <lticm:property name="text">discussion_topic_menu Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="editor_button">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/editor_button.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelectionRequest</lticm:property>
+      <lticm:property name="text">editor_button Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="file_menu">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/file_menu.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelection</lticm:property>
+      <lticm:property name="text">file_menu Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="global_navigation">
+      <lticm:property name="canvas_icon_class">icon-analytics</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/global_navigation.png</lticm:property>
+      <lticm:property name="text">LTI Analytics</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="homework_submission">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/homework_submission.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelectionRequest</lticm:property>
+      <lticm:property name="text">homework_submission Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:property name="icon_url">http://lti-tool-provider-example.herokuapp.com/selector.png</lticm:property>
+    <lticm:options name="link_selection">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/link_selection.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelectionRequest</lticm:property>
+      <lticm:property name="text">link_selection Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="migration_selection">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/migration_selection.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelectionRequest</lticm:property>
+      <lticm:property name="text">migration_selection Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="module_menu">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/module_menu.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelection</lticm:property>
+      <lticm:property name="text">module_menu Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:property name="privacy_level">public</lticm:property>
+    <lticm:options name="quiz_menu">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/quiz_menu.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelection</lticm:property>
+      <lticm:property name="text">quiz_menu Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:property name="selection_height">500</lticm:property>
+    <lticm:property name="selection_width">500</lticm:property>
+    <lticm:property name="text">Extension text</lticm:property>
+    <lticm:options name="tool_configuration">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/tool_configuration.png</lticm:property>
+      <lticm:property name="text">tool_configuration Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+    <lticm:options name="user_navigation">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/user_navigation.png</lticm:property>
+      <lticm:property name="text">user_navigation Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+      
+      <lticm:options name="labels">
+        <lticm:property name="en">User Navigation Label</lticm:property>
+        <lticm:property name="es">Biblioteca de Imágenes</lticm:property>
+      </lticm:options>
+    </lticm:options>
+    <lticm:options name="wiki_page_menu">
+      <lticm:property name="canvas_icon_class">icon-lti</lticm:property>
+      <lticm:property name="icon_url">http://localhost:3000/static/wiki_page_menu.png</lticm:property>
+      <lticm:property name="message_type">ContentItemSelection</lticm:property>
+      <lticm:property name="text">wiki_page_menu Text</lticm:property>
+      <lticm:property name="url">http://localhost:3000/lti_launches</lticm:property>
+    </lticm:options>
+  </blti:extensions>
+</cartridge_basiclti_link>

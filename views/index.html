@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <script type="text/javascript">
+            window.DEFAULT_SETTINGS = {
+                lmsUserId: <%= data.launchInfo.userId %>,
+                userId: "<%= data.user._id %>",
+                userName: "<%= data.user.name %>",
+                roles: "<%= data.user.roles %>",
+                email: "<%= data.user.email %>",
+                isInstructor: <%= data.launchInfo.isInstructor %>,
+                courseId: <%= data.launchInfo.courseId %>                
+            };
+            window.DEFAULT_JWT = "<%= data.jwt %>";
+        </script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script src="index.js"></script>
+        <link rel="stylesheet" href="index.css">
+    </body>
+</html>
