@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Teacher from './teacher/teacher';
+import Student from './student/student';
 
 const App = () => {
-    return (
-        <div>
-            <img id="usu-logo" src="/vertical_logo_blue.png" />
-            <h1>Welcome to the LTI Starter App</h1>
-        </div>
-    );
+  if (window.DEFAULT_SETTINGS.isInstructor) {
+    return <Teacher />;
+  }
+  return <Student />;
 }
 
 ReactDOM.render(<App />, document.getElementById("app"));

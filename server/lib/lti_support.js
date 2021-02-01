@@ -30,6 +30,9 @@ const setupLti = (app) => {
     {
       expiresIn: "2 days",
     });
+    if (req.session.launchInfo.isInstructor) {
+      await database.createAndAssociateCourse(req.session.launchInfo);
+    }
     next();
   });
 }

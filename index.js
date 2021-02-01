@@ -12,6 +12,9 @@ const port = parseInt(process.env.APP_PORT, 10);
 
 const app = express();
 
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+
 app.use(session({secret: "secret", resave: false, saveUninitialized: true}));
 
 app.use(bodyParser.json());
@@ -33,9 +36,6 @@ app.get('/', (req, res) => {
 });
 
 app.get('/lti_launches', (req, res) => {
-  console.log(req.jwt);
-  console.log(req.session.launchInfo);
-  console.log(req.currentUser.toDoc());
   res.render("index", {
     data: {
       launchInfo: req.session.launchInfo,
@@ -45,7 +45,18 @@ app.get('/lti_launches', (req, res) => {
   });
 });
 
-app.listen(port, () => {
+require("./server/api/api")(app);
+
+io.on('connection', (socket) => {
+  console.log("A User Connected");
+  socket.emit('ping');
+  socket.on('ping', () => {
+    socket.emit('ping');
+    socket.broadcast.emit('ping');
+  })
+});
+
+http.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
 

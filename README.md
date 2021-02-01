@@ -1,7 +1,5 @@
-# Node LTI Starter App
-This is an LTI Starter Application using NodeJS, Parcel, and MongoDB.
-
-This app handles a basic LTI 1.1 launch from any LMS that supports the standard. In the future I will support LTI 1.3 but not yet.
+# Office Hours Queue
+This app provides a queue for office hours so students have an expectation of how long they might have to wait to meet with their instructor.
 
 ## Getting started
 These instructions assume you have MongoDB community edition installed on your machine.
