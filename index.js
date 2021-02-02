@@ -1,12 +1,13 @@
 require('dotenv').config();
-require('./server/models/user');
 
+const jwt = require('jsonwebtoken');
 const morgan = require('morgan')
 const express = require('express');
 const path = require("path");
 const bodyParser = require("body-parser");
 const session = require('express-session');
 const { setupLti } = require("./server/lib/lti_support");
+const database = new (require('./server/database/database'));
 
 const port = parseInt(process.env.APP_PORT, 10);
 
@@ -47,13 +48,91 @@ app.get('/lti_launches', (req, res) => {
 
 require("./server/api/api")(app);
 
-io.on('connection', (socket) => {
-  console.log("A User Connected");
-  socket.emit('ping');
-  socket.on('ping', () => {
-    socket.emit('ping');
-    socket.broadcast.emit('ping');
-  })
+io.on('connection', async (socket) => {
+  socket.on('disconnect', () => {
+    console.log("A USER WAS DISCONNECTED");
+  });
+
+  // Creating session
+  try {
+    const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+    console.log("A User Connected");
+    if (jwtBody.isInstructor) {
+      
+      const currentSession = await database.getCurrentSession(jwtBody);
+      if (currentSession == null) {
+        socket.emit("current state", "CREATING_SESSION");
+        socket.on('create', async (sessionInfo) => {
+          console.log("request recieved")
+          try {
+            const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+            if (jwtBody.isInstructor) {
+              const currentSession = await database.createSession({
+                ...sessionInfo,
+                lmsUserId: jwtBody.lmsUserId,
+              });
+              console.log(currentSession);
+              socket.emit('current state', 'IN_SESSION');
+              currentSession.selectedCourses.forEach((courseId) => {
+                socket.to(`waiting ${courseId}`).emit('teacher started session');
+              });
+            }
+          } catch(e) {
+            console.log(e);
+          }
+        });
+      } else {
+        socket.emit("current state", "IN_SESSION");
+        socket.join(`teacher ${jwtBody.userId}`);
+      }
+      console.log(currentSession);
+
+    } else {
+      socket.join(`waiting ${jwtBody.courseId}`);
+    } 
+  } catch (e) {
+    console.log(e);
+    console.log("INVALID JWT");
+    socket.emit('invalid JWT');
+  }
+
+
+  // ENDING A SESSION
+  socket.on("end session", async () => {
+    try {
+      const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+      if (jwtBody.isInstructor) {
+        const currentSession = await database.destroySession(jwtBody.lmsUserId);
+        socket.emit('current state', 'SESSION_CONCLUDED');
+        socket.to(`session ${jwtBody.lmsUserId}`).emit('no session');
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  });
+
+  socket.on('attempt join', async () => {
+    try {
+      const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+      if (jwtBody.isInstructor) {
+        const currentSession = await database.getCurrentSession(jwtBody);
+        socket.join(`session ${currentSession.lmsUserId}`);
+        socket.emit('session joined', currentSession);
+      } else {
+        const currentSession = await database.getCurrentCourseSession(jwtBody);
+        if (currentSession) {
+          socket.join(`session ${currentSession.lmsUserId}`);
+          socket.emit('session joined', currentSession._id);
+          // check if already in queue
+        } else {
+          socket.emit('no session');
+        }
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  });
+  
 });
 
 http.listen(port, () => {

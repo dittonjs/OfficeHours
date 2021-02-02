@@ -48,6 +48,39 @@ class Database {
     const courses = await db.collection("courses").find({ lmsUserId }).toArray();
     return courses;
   }
+
+  async getCurrentSession(jwtBody) {
+    console.log(jwtBody);
+    const client = await MongoClient.connect(`mongodb://localhost:27017`);
+    const db = client.db(process.env.DB_NAME);
+    return db.collection("sessions").findOne({
+      lmsUserId: jwtBody.lmsUserId
+    });
+  }
+
+  async getCurrentCourseSession(jwtBody) {
+    console.log(jwtBody);
+    const client = await MongoClient.connect(`mongodb://localhost:27017`);
+    const db = client.db(process.env.DB_NAME);
+    return db.collection("sessions").findOne({
+      selectedCourses: jwtBody.courseId,
+    });
+  }
+
+  async createSession(session) {
+    const client = await MongoClient.connect(`mongodb://localhost:27017`);
+    const db = client.db(process.env.DB_NAME);
+
+    const result = await db.collection("sessions").insertOne(session);
+    return result.ops[0];
+  }
+
+  async destroySession(lmsUserId) {
+    const client = await MongoClient.connect(`mongodb://localhost:27017`);
+    const db = client.db(process.env.DB_NAME);
+
+    await db.collection("sessions").deleteOne({ lmsUserId });
+  }
 }
 
 module.exports = Database;

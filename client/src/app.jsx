@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Teacher from './teacher/teacher';
+import SwitchBoard from './teacher/switch_board';
 import Student from './student/student';
 
 const App = () => {
   if (window.DEFAULT_SETTINGS.isInstructor) {
-    return <Teacher />;
+    return <SwitchBoard />;
   }
   return <Student />;
 }

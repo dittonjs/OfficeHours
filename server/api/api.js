@@ -11,4 +11,9 @@ module.exports = (app) => {
     const courses = await database.getCourses(jwtBody.lmsUserId);
     res.json(courses);
   });
+
+  app.post("/api/sessions",  async (req, res) => {
+    console.log(req.query.jwt);
+    console.log(req.body);
+  });
 }
