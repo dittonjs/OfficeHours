@@ -35,14 +35,12 @@ export default () => {
     );
   }
 
-  const endSession = () => {
-    socket.emit('end session');
-  }
+
   console.log("MY SESSION IS ", sessionState);
   if (sessionState === CREATING_SESSION) {
     return <Teacher createSession={createSession} />
   } else if (sessionState === IN_SESSION) {
-    return <OfficeHourseManagement endSession={endSession}/>
+    return <OfficeHourseManagement socket={socket}/>
   } else {
     return null;
   }

@@ -81,6 +81,15 @@ class Database {
 
     await db.collection("sessions").deleteOne({ lmsUserId });
   }
+
+  async updateSessionParticipants(sessionId, participants) {
+    const client = await MongoClient.connect(`mongodb://localhost:27017`);
+    const db = client.db(process.env.DB_NAME);
+
+    await db.collection("sessions").updateOne({ _id: sessionId }, { 
+      $set: { participants }
+    });
+  }
 }
 
 module.exports = Database;

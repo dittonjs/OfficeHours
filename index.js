@@ -1,5 +1,5 @@
 require('dotenv').config();
-
+const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const morgan = require('morgan')
 const express = require('express');
@@ -56,9 +56,10 @@ io.on('connection', async (socket) => {
   // Creating session
   try {
     const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+    socket.join(`personal ${jwtBody.lmsUserId}`);
     console.log("A User Connected");
     if (jwtBody.isInstructor) {
-      
+      socket.join(`teacher ${jwtBody.lmsUserId}`);
       const currentSession = await database.getCurrentSession(jwtBody);
       if (currentSession == null) {
         socket.emit("current state", "CREATING_SESSION");
@@ -70,6 +71,8 @@ io.on('connection', async (socket) => {
               const currentSession = await database.createSession({
                 ...sessionInfo,
                 lmsUserId: jwtBody.lmsUserId,
+                participants: [],
+                messages: [],
               });
               console.log(currentSession);
               socket.emit('current state', 'IN_SESSION');
@@ -83,11 +86,14 @@ io.on('connection', async (socket) => {
         });
       } else {
         socket.emit("current state", "IN_SESSION");
-        socket.join(`teacher ${jwtBody.userId}`);
+
+        // ROOM DEDICATED TO TEACHER ONLY
+        
       }
       console.log(currentSession);
 
     } else {
+      // WAITING ROOM FOR THE COURSE
       socket.join(`waiting ${jwtBody.courseId}`);
     } 
   } catch (e) {
@@ -116,17 +122,88 @@ io.on('connection', async (socket) => {
       const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
       if (jwtBody.isInstructor) {
         const currentSession = await database.getCurrentSession(jwtBody);
+        // THE ROOM FOR THE ACTUAL SESSION
         socket.join(`session ${currentSession.lmsUserId}`);
-        socket.emit('session joined', currentSession);
+        socket.emit('session info', currentSession);
       } else {
         const currentSession = await database.getCurrentCourseSession(jwtBody);
         if (currentSession) {
           socket.join(`session ${currentSession.lmsUserId}`);
           socket.emit('session joined', currentSession._id);
+          if (!_.find(currentSession.participants, p => p.lmsUserId === jwtBody.lmsUserId)) {
+            console.log("ADDING TO QUEUE");
+            currentSession.participants = [
+              ...currentSession.participants,
+              {
+                name: jwtBody.name,
+                courseId: jwtBody.courseId,
+                userId: jwtBody.userId,
+                lmsUserId: jwtBody.lmsUserId,
+                email: jwtBody.email,
+                courseTitle: jwtBody.courseTitle,
+                status: 'waiting',
+                present: true,
+              }
+            ];
+            await database.updateSessionParticipants(currentSession._id, currentSession.participants);
+            
+          }
+          console.log(currentSession);
+          // broadcast to all including current socket
+          io
+            .to(`session ${currentSession.lmsUserId}`)
+            .emit('participants updated', _.map(currentSession.participants, (p) => {
+              return p.userId;
+            }));
+          socket.to(`teacher ${currentSession.lmsUserId}`).emit('session info', currentSession);
+          socket.emit('messages', currentSession.messages);
           // check if already in queue
         } else {
           socket.emit('no session');
         }
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  });
+
+  socket.on('remove user', async (lmsUserId) => {
+    try {
+      const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+      if (jwtBody.isInstructor) {
+        const currentSession = await database.getCurrentCourseSession(jwtBody);
+        _.remove(currentSession.participants, p => p.lmsUserId === lmsUserId );
+        await database.updateSessionParticipants(currentSession._id, currentSession.participants);
+        io
+          .to(`session ${currentSession.lmsUserId}`)
+          .emit('participants updated', _.map(currentSession.participants, (p) => {
+            return p.userId;
+          }));
+          socket.to(`personal ${lmsUserId}`).emit('removed');
+          socket.emit('session info', currentSession);
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  });
+
+  socket.on('admit user', async (lmsUserId) => {
+    try {
+      const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+      if (jwtBody.isInstructor) {
+        const currentSession = await database.getCurrentCourseSession(jwtBody);
+        _.remove(currentSession.participants, p => p.lmsUserId === lmsUserId );
+        await database.updateSessionParticipants(currentSession._id, currentSession.participants);
+        io
+          .to(`session ${currentSession.lmsUserId}`)
+          .emit('participants updated', _.map(currentSession.participants, (p) => {
+            return p.userId;
+          }));
+          socket.to(`personal ${lmsUserId}`).emit('allow entry', {
+            meetingLink: currentSession.meetingLink,
+            meetingPassword: currentSession.meetingPassword,
+          });
+          socket.emit('session info', currentSession);
       }
     } catch(e) {
       console.log(e);

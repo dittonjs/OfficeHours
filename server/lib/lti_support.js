@@ -25,6 +25,8 @@ const setupLti = (app) => {
       name: user.name,
       isInstructor: req.session.launchInfo.isInstructor,
       isTA: req.session.launchInfo.isTA,
+      email: req.session.launchInfo.userEmail,
+      courseTitle: req.session.launchInfo.originalLTILaunchBody.custom_canvas_context_title
     }, 
     process.env.SECRET_KEY,
     {
