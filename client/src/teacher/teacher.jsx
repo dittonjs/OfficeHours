@@ -1,6 +1,15 @@
 import React, {useEffect, useState} from "react";
 import _ from 'lodash';
-import { Paper, Box, Button, Container, TextField, Typography, FormGroup, FormControlLabel, Checkbox } from '@material-ui/core';
+
+import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import Container from '@material-ui/core/Container';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 
 export default ({ createSession }) => {
   const [coursesLoading, setCoursesLoading] = useState(true);

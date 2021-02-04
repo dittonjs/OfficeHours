@@ -50,9 +50,7 @@ app.get('/lti_launches', (req, res) => {
 require("./server/api/api")(app);
 
 io.on('connection', async (socket) => {
-  socket.on('disconnect', () => {
-    console.log("A USER WAS DISCONNECTED");
-  });
+  
 
   // Creating session
   try {
@@ -75,7 +73,7 @@ io.on('connection', async (socket) => {
                 participants: [],
                 messages: [],
               });
-              console.log(currentSession);
+              // console.log(currentSession);
               socket.emit('current state', 'IN_SESSION');
               currentSession.selectedCourses.forEach((courseId) => {
                 socket.to(`waiting ${courseId}`).emit('teacher started session');
@@ -110,7 +108,7 @@ io.on('connection', async (socket) => {
       const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
       if (jwtBody.isInstructor) {
         const currentSession = await database.destroySession(jwtBody.lmsUserId);
-        socket.emit('current state', 'SESSION_CONCLUDED');
+        socket.emit('current state', 'CREATING_SESSION');
         socket.to(`session ${jwtBody.lmsUserId}`).emit('no session');
       }
     } catch(e) {
@@ -132,7 +130,8 @@ io.on('connection', async (socket) => {
         if (currentSession) {
           socket.join(`session ${currentSession.lmsUserId}`);
           socket.emit('session joined', currentSession._id);
-          if (!_.find(currentSession.participants, p => p.lmsUserId === jwtBody.lmsUserId)) {
+          const currentParticipant = _.find(currentSession.participants, p => p.lmsUserId === jwtBody.lmsUserId);
+          if (!currentParticipant) {
             console.log("ADDING TO QUEUE");
             currentSession.participants = [
               ...currentSession.participants,
@@ -147,10 +146,32 @@ io.on('connection', async (socket) => {
                 present: true,
               }
             ];
+            await database.updateSessionParticipants(currentSession._id, currentSession.participants);  
+            socket.on("disconnect", async () => {
+              console.log("USER DISCONNECTED")
+              const currentSession = await database.getCurrentCourseSession(jwtBody);
+              const currentParticipant = _.find(currentSession.participants, p => p.lmsUserId === jwtBody.lmsUserId);
+              if (currentParticipant) {
+                currentParticipant.present = false;
+                await database.updateSessionParticipants(currentSession._id, currentSession.participants);
+                socket.to(`teacher ${currentSession.lmsUserId}`).emit('session info', currentSession);
+              }
+            });
+          } else {
+            currentParticipant.present = true;
             await database.updateSessionParticipants(currentSession._id, currentSession.participants);
-            
+            socket.on("disconnect", async () => {
+              console.log("USER DISCONNECTED")
+              const currentSession = await database.getCurrentCourseSession(jwtBody);
+              const currentParticipant = _.find(currentSession.participants, p => p.lmsUserId === jwtBody.lmsUserId);
+              if (currentParticipant) {
+                currentParticipant.present = false;
+                await database.updateSessionParticipants(currentSession._id, currentSession.participants);
+                socket.to(`teacher ${currentSession.lmsUserId}`).emit('session info', currentSession);
+              }
+            });
           }
-          console.log(currentSession);
+          // console.log(currentSession);
           // broadcast to all including current socket
           io
             .to(`session ${currentSession.lmsUserId}`)
@@ -172,7 +193,7 @@ io.on('connection', async (socket) => {
   socket.on('remove user', async (lmsUserId) => {
     try {
       const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
-      if (jwtBody.isInstructor) {
+      if (jwtBody.isInstructor || lmsUserId == jwtBody.lmsUserId) {
         const currentSession = await database.getCurrentCourseSession(jwtBody);
         _.remove(currentSession.participants, p => p.lmsUserId === lmsUserId );
         await database.updateSessionParticipants(currentSession._id, currentSession.participants);
@@ -181,8 +202,8 @@ io.on('connection', async (socket) => {
           .emit('participants updated', _.map(currentSession.participants, (p) => {
             return p.userId;
           }));
-          socket.to(`personal ${lmsUserId}`).emit('removed');
-          socket.emit('session info', currentSession);
+          io.to(`personal ${lmsUserId}`).emit('removed');
+          io.to(`teacher ${currentSession.lmsUserId}`).emit('session info', currentSession);
       }
     } catch(e) {
       console.log(e);

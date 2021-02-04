@@ -8,8 +8,11 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import DirectionsIcon from '@material-ui/icons/Directions';
-import { Typography } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import Checkbox from '@material-ui/core/Checkbox';
 import SendIcon from '@material-ui/icons/Send';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default ({ messages, sendMessage }) => {
+export default ({ messages, sendMessage, playAudio, setPlayAudio }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [shouldScroll, setShouldScroll] = useState(true);
@@ -67,19 +70,39 @@ export default ({ messages, sendMessage }) => {
     <Paper>
       <div className="padded-container">
         <Typography variant="body1" className="light-text">Chat</Typography>
+        <Checkbox
+          checked={playAudio}
+          className="sound-box"
+          icon={<VolumeOffIcon/>}
+          checkedIcon={<VolumeUpIcon />}
+          onChange={e => setPlayAudio(e.target.checked)}
+        />
       </div>
       <Divider />
       <div className="padded-container messages" id="messages">
         <div className="chat-messages" id="chat-messages">
           {
-            _.map(_.reverse([...messages]), (message, i) => (
-                <div key={message.id} >
-                  <span className="speech-bubble-right">
-                    {message.body}
-                  </span>
-                </div>
-              )
-            )
+            _.map(_.reverse([...messages]), (message, i) => {
+                if (message.lmsUserId === window.DEFAULT_SETTINGS.lmsUserId) {
+                  return (
+                    <div key={message.id} >
+                      <span className="speech-bubble-right">
+                      <span className="up-right">{message.name}</span>   
+                        {message.body}       
+                      </span>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div key={message.id} >
+                      <span className={`speech-bubble ${message.isInstructor ? 'teacher-bubble' : ''}`}>
+                          <span className="up-left">{message.name}</span>               
+                          {message.body}
+                      </span>
+                    </div>
+                  );
+                }
+            })
           }       
         </div>
       </div>

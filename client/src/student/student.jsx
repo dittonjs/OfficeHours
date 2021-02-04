@@ -1,6 +1,10 @@
-import { Button, Container, Typography } from "@material-ui/core";
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
+import Button from '@material-ui/core/Button';
 import React, {useState, useEffect} from "react";
 import WaitingRoom from "./waiting_room";
+import WelcomeScreen from './welcome_screen';
+import _ from 'lodash';
 
 const IN_SESSION = "IN_SESSION";
 const NO_SESSION = "NO_SESSION";
@@ -14,6 +18,8 @@ export default () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [meetingInfo, setMeetingInfo] = useState(null);
+  const [audio, setAudio] = useState([]);
+  const [playAudio, setPlayAudio] = useState(true);
   
 
   useEffect(() => {
@@ -36,10 +42,6 @@ export default () => {
       console.log(session);
     });
 
-    socket.on('participants updated', (participants) => {
-      console.log("I GOT UPDATED");
-      setParticipants(participants);
-    });
 
     socket.on('messages', (messages) => {
       setMessages(messages);
@@ -58,33 +60,74 @@ export default () => {
     socket.emit('attempt join');
 
     setSocket(socket);
-    // https://usu-edu.zoom.us/my/josephditton?pwd=MmcyMXp1UnZCZFZYNjdvV1BOZXJ2UT09
     socket.on('teacher started session', () => {
       // things to test
       // make sure no one in other classes is notified
       console.log("I was waiting but now am found!");
       socket.emit('attempt join');
-    })
+    });
+
+    setAudio(new Audio('/notification.mp3'));
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.off('participants updated');
+    socket.on('participants updated', (newParticipants) => {
+      console.log("I GOT UPDATED");
+      const shouldWait = _.map(participants, (pId) => {
+        if (!_.includes(newParticipants, pId)) {
+          const el = document.getElementById(pId);
+          if(el) {
+            el.style.top = '-200px';
+            el.style.fontSize = '0px';
+          }
+          return true;
+        }
+      });
+      console.log(shouldWait);
+      if (_.some(shouldWait)) {
+        setTimeout(() => {
+          setParticipants(newParticipants);
+        }, 1000);
+      } else {
+        setParticipants(newParticipants);
+      }
+    });
+  }, [participants, socket])
 
   useEffect(() => {
     if (!socket) return;
     socket.off('message');
     socket.on('message',  (newMessage) => {
       console.log(messages);
+      playAudio && newMessage.lmsUserId !== window.DEFAULT_SETTINGS.lmsUserId && audio.play();
       setMessages([...messages, newMessage]);
     });
-  }, [messages, socket]);
+  }, [messages, socket, audio]);
 
   const sendMessage = (message) => {
     socket.emit('message', message);
   }
 
+  const leaveMeeting = () => {
+    socket.emit('remove user', window.DEFAULT_SETTINGS.lmsUserId);
+  }
+
   if (loading) return null;
   if (sessionState === IN_SESSION) {
-    return <WaitingRoom participants={participants} messages={messages} sendMessage={sendMessage} />
+    return (
+      <WaitingRoom 
+        participants={participants} 
+        messages={messages} 
+        sendMessage={sendMessage}
+        leaveMeeting={leaveMeeting}
+        playAudio={playAudio}
+        setPlayAudio={setPlayAudio}
+      />
+    );
   } else if (sessionState === REMOVED) {
-    return <div>You have been removed from the queue by your instructor</div>;
+    return <div>You have been removed from the queue.</div>;
   } else if (sessionState === ADMITTED && meetingInfo) {
     return (
       <Container>
@@ -99,5 +142,5 @@ export default () => {
       </Container>
     );
   }
-  return <div>This is the student app</div>;
+  return <WelcomeScreen />;
 }

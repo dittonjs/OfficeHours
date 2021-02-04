@@ -9,6 +9,12 @@ a, a:hover, a:focus, a:active {
     color: inherit;
 }
 
+pre {
+    display: inline-block;
+    font-family: inherit;
+    margin: 0;
+}
+
 .spacer {
     margin-top: 1.2rem;
 }
@@ -55,6 +61,7 @@ a, a:hover, a:focus, a:active {
 
 .padded-container {
     padding: 12px;
+    position: relative;
 }
 
 .sm-margin {
@@ -62,7 +69,7 @@ a, a:hover, a:focus, a:active {
 }
 
 .light-text {
-    color: rgba(0, 0, 0, 0.24);
+    color: rgba(0, 0, 0, 0.54);
 }
 
 .messages {
@@ -83,7 +90,7 @@ a, a:hover, a:focus, a:active {
 
 .speech-bubble {
     display: inline-block;
-    margin-top: 12px;
+    margin-top: 24px;
 	position: relative;
     background: #00aabb;
     border-top-left-radius: 10px;
@@ -92,6 +99,15 @@ a, a:hover, a:focus, a:active {
     padding: 12px;
     color: white;
     margin-left: 24px;
+    word-break: break-word;
+    .up-left {
+        position: absolute;
+        left: 0;
+        top: -20px;
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 10pt; 
+        white-space: nowrap;
+    }
 }
 
 .speech-bubble:before {
@@ -109,17 +125,35 @@ a, a:hover, a:focus, a:active {
 	margin-left: -14px;
 }
 
+.teacher-bubble {
+    background: #388e3c;
+}
+
+.teacher-bubble:before {
+    border-right-color: #388e3c;
+}
+
 .speech-bubble-right{
     display: inline-block;
-    margin-top: 12px;
+    margin-top: 24px;
 	position: relative;
-    background: #00aabb;
+    background:#0277BD;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     border-bottom-left-radius: 10px;
     padding: 12px;
     color: white;
-    margin-left: 24px;
+    margin-right: 24px;
+    float: right;
+    word-break: break-word;
+    .up-right {
+        white-space: nowrap;
+        position: absolute;
+        right: 0;
+        top: -20px;
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 10pt; 
+    }
 }
 
 .speech-bubble-right:before {
@@ -130,9 +164,39 @@ a, a:hover, a:focus, a:active {
 	width: 0;
 	height: 0;
 	border: 14px solid transparent;
-	border-left-color: #00aabb;
+	border-left-color:#0277BD;
 	border-right: 0;
     border-bottom: 0;
 	margin-top: -23.5px;
 	margin-left: -14px;
+}
+
+.teacher {
+    font-size: 5.5rem;
+}
+
+.current-person {
+    font-size: 3rem;
+    color: #0277BD;
+    margin-bottom: 6px;
+    transition: all ease .5s;
+}
+
+.person {
+    font-size: 2.5rem;
+    margin-bottom: 7px;
+    transition: all ease .5s;
+    position: relative;
+    top: 0;
+}
+
+.fixed-90 {
+    position: relative;
+    overflow: hidden;
+}
+
+.sound-box {
+    position: absolute;
+    top: 3px;
+    right: 12px;
 }
