@@ -20,4 +20,4 @@ git add -f dist
 
 git commit -m "parent sha: [$SHA] add precompile files"
 
-git push -f heroku master
+git push -f heroku main
