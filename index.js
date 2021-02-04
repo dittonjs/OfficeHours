@@ -10,7 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 const { setupLti } = require("./server/lib/lti_support");
 const database = new (require('./server/database/database'));
 
-const port = parseInt(process.env.APP_PORT, 10);
+const port = parseInt(process.env.PORT, 10) || parseInt(process.env.APP_PORT, 10);
 
 const app = express();
 
@@ -257,7 +257,7 @@ io.on('connection', async (socket) => {
   
 });
 
-http.listen(port, () => {
+http.listen(port, '0.0.0.0', () => {
   console.log(`App listening at http://localhost:${port}`);
 });
 
