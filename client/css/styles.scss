@@ -39,8 +39,9 @@ a, a:hover, a:focus, a:active {
     display: flex;
     flex-direction: column;
     flex-basis: 100%;
-    flex: 2;
+    flex: 1;
     min-width: 500px;
+    padding: 6px;
 }
 
 .sm-column {
@@ -48,5 +49,90 @@ a, a:hover, a:focus, a:active {
     flex-direction: column;
     flex-basis: 100%;
     flex: 1;
-    min-width: 250px;
+    min-width: 500px;
+    padding: 6px;
+}
+
+.padded-container {
+    padding: 12px;
+}
+
+.sm-margin {
+    margin-left: 12px;
+}
+
+.light-text {
+    color: rgba(0, 0, 0, 0.24);
+}
+
+.messages {
+    height: 500px;
+    // overflow-y: auto;
+    display:flex;
+    flex-direction:column;
+    // height:100%;
+}
+
+.chat-messages{
+    flex: 1;
+    height:500px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.speech-bubble {
+    display: inline-block;
+    margin-top: 12px;
+	position: relative;
+    background: #00aabb;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 12px;
+    color: white;
+    margin-left: 24px;
+}
+
+.speech-bubble:before {
+	content: '';
+    position: absolute;
+	left: 0px;
+	bottom: 0;
+	width: 0;
+	height: 0;
+	border: 14px solid transparent;
+	border-right-color: #00aabb;
+	border-left: 0;
+    border-bottom: 0;
+	margin-top: -23.5px;
+	margin-left: -14px;
+}
+
+.speech-bubble-right{
+    display: inline-block;
+    margin-top: 12px;
+	position: relative;
+    background: #00aabb;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding: 12px;
+    color: white;
+    margin-left: 24px;
+}
+
+.speech-bubble-right:before {
+	content: '';
+    position: absolute;
+	right: -14px;
+	bottom: 0;
+	width: 0;
+	height: 0;
+	border: 14px solid transparent;
+	border-left-color: #00aabb;
+	border-right: 0;
+    border-bottom: 0;
+	margin-top: -23.5px;
+	margin-left: -14px;
 }

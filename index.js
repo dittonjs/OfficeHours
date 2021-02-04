@@ -6,6 +6,7 @@ const express = require('express');
 const path = require("path");
 const bodyParser = require("body-parser");
 const session = require('express-session');
+const { v4: uuidv4 } = require('uuid');
 const { setupLti } = require("./server/lib/lti_support");
 const database = new (require('./server/database/database'));
 
@@ -125,6 +126,7 @@ io.on('connection', async (socket) => {
         // THE ROOM FOR THE ACTUAL SESSION
         socket.join(`session ${currentSession.lmsUserId}`);
         socket.emit('session info', currentSession);
+        socket.emit('messages', currentSession.messages);
       } else {
         const currentSession = await database.getCurrentCourseSession(jwtBody);
         if (currentSession) {
@@ -205,6 +207,28 @@ io.on('connection', async (socket) => {
           });
           socket.emit('session info', currentSession);
       }
+    } catch(e) {
+      console.log(e);
+    }
+  });
+
+  socket.on('message', async(message) => {
+    try {
+      const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+      const currentSession = await database.getCurrentCourseSession(jwtBody);
+      const messageJson = {
+        body: message,
+        name: jwtBody.name,
+        courseTitle: jwtBody.courseTitle,
+        lmsUserId: jwtBody.lmsUserId,
+        isInstructor: jwtBody.isInstructor,
+        id: uuidv4(),
+      };
+      currentSession.messages.push(messageJson);
+      database.updateMessages(currentSession._id, currentSession.messages);
+      io
+        .to(`session ${currentSession.lmsUserId}`)
+        .emit("message", messageJson);
     } catch(e) {
       console.log(e);
     }

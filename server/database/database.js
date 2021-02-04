@@ -90,6 +90,15 @@ class Database {
       $set: { participants }
     });
   }
+
+  async updateMessages(sessionId, messages) {
+    const client = await MongoClient.connect(`mongodb://localhost:27017`);
+    const db = client.db(process.env.DB_NAME);
+
+    await db.collection("sessions").updateOne({ _id: sessionId }, { 
+      $set: { messages }
+    });
+  }
 }
 
 module.exports = Database;

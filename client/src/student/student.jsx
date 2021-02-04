@@ -67,9 +67,22 @@ export default () => {
     })
   }, []);
 
+  useEffect(() => {
+    if (!socket) return;
+    socket.off('message');
+    socket.on('message',  (newMessage) => {
+      console.log(messages);
+      setMessages([...messages, newMessage]);
+    });
+  }, [messages, socket]);
+
+  const sendMessage = (message) => {
+    socket.emit('message', message);
+  }
+
   if (loading) return null;
   if (sessionState === IN_SESSION) {
-    return <WaitingRoom participants={participants} messages={messages} sendMessage={() => {}} />
+    return <WaitingRoom participants={participants} messages={messages} sendMessage={sendMessage} />
   } else if (sessionState === REMOVED) {
     return <div>You have been removed from the queue by your instructor</div>;
   } else if (sessionState === ADMITTED && meetingInfo) {
