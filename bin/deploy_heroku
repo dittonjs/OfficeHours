@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -o nounset
+set -o errexit
+set -o pipefail
+
+SHA=$(git rev-parse --short HEAD)
+
+function finish {
+  git reset --hard $SHA
+}
+trap finish EXIT
+
+yarn build
+
+git add -f dist
+git add -f dist
+
+# git add -f config/secrets.yml
+
+git commit -m "parent sha: [$SHA] add precompile files"
+
+git push -f heroku master
