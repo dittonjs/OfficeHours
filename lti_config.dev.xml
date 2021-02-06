@@ -8,7 +8,7 @@
   <blti:extensions platform="canvas.instructure.com">
     <lticm:options name="course_navigation">
       <lticm:property name="default">enabled</lticm:property>
-      <lticm:property name="text">Office Hours</lticm:property>
+      <lticm:property name="text">Office Hours DEV</lticm:property>
       <lticm:property name="url">https://officehours.atomicjolt.xyz/lti_launches</lticm:property>
       <lticm:property name="visibility">public</lticm:property>
       <lticm:property name="windowTarget"/>

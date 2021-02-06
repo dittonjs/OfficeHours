@@ -139,6 +139,11 @@ export default () => {
             <Button variant="contained">JOIN MEETING</Button>
           </a>
         </div>
+        {
+          meetingInfo.meetingPassword !== "" && meetingInfo.meetingPassword && <div style={{ marginTop: '6px'}}>
+            The password is: {meetingInfo.meetingPassword}
+          </div>
+        }
       </Container>
     );
   }
