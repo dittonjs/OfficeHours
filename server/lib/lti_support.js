@@ -9,6 +9,7 @@ const setupLti = (app) => {
         callback(null);
       }
     }
+    next();
   });
       
   initLTI({ 
