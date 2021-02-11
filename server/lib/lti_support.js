@@ -14,6 +14,9 @@ const setupLti = (app) => {
   });
 
   app.use('/lti_launches', async (req, res, next) => {
+    console.log(req);
+    console.log(req.session);
+    console.log(req.session.launchInfo);
     const user = await database.findOrCreateUserFromLTI(req.session.launchInfo);
     req.currentUser = user;
 
