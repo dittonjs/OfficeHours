@@ -3,6 +3,13 @@ const jwt = require('jsonwebtoken');
 const database = new (require('../database/database'));
 
 const setupLti = (app) => {
+  app.use((req, res, next) => {
+    req.session = {
+      save(callback) {
+        callback(null);
+      }
+    }
+  });
       
   initLTI({ 
     app,

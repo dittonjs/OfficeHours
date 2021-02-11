@@ -17,7 +17,7 @@ const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
-app.use(session({secret: "secret", resave: false, saveUninitialized: true}));
+// app.use(session({secret: "secret", resave: false, saveUninitialized: true}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
