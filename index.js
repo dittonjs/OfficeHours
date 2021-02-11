@@ -5,7 +5,6 @@ const morgan = require('morgan')
 const express = require('express');
 const path = require("path");
 const bodyParser = require("body-parser");
-const session = require('express-session');
 const { v4: uuidv4 } = require('uuid');
 const { setupLti } = require("./server/lib/lti_support");
 const database = new (require('./server/database/database'));
@@ -37,15 +36,6 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/lti_launches', (req, res) => {
-  res.render("index", {
-    data: {
-      launchInfo: req.session.launchInfo,
-      user: req.currentUser.toDoc(),
-      jwt: req.jwt,
-    }
-  });
-});
 
 require("./server/api/api")(app);
 
