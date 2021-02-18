@@ -1,6 +1,7 @@
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 import React, {useState, useEffect} from "react";
 import WaitingRoom from "./waiting_room";
 import WelcomeScreen from './welcome_screen';
@@ -20,6 +21,7 @@ export default () => {
   const [meetingInfo, setMeetingInfo] = useState(null);
   const [audio, setAudio] = useState([]);
   const [playAudio, setPlayAudio] = useState(true);
+  const [connectionError, setConnectionError] = useState(false);
   
 
   useEffect(() => {
@@ -65,6 +67,30 @@ export default () => {
       // make sure no one in other classes is notified
       console.log("I was waiting but now am found!");
       socket.emit('attempt join');
+    });
+
+    socket.on('disconnect', () => {
+      setConnectionError(true);
+    });
+
+    socket.on('connect_failed', () => {
+      setConnectionError(true);
+    });
+
+    socket.on('error', () => {
+      setConnectionError(true);
+    });
+
+    socket.on('reconnect_error', () => {
+      setConnectionError(true);
+    });
+
+    socket.on('reconnect_failed', () => {
+      setConnectionError(true);
+    });
+
+    socket.on('connect_error', () => {
+      setConnectionError(true);
     });
 
     setAudio(new Audio('/notification.mp3'));
@@ -115,6 +141,9 @@ export default () => {
   }
 
   if (loading) return null;
+  if (connectionError) {
+    return <Paper className="connection-error">A connection error has occurred. Please refresh the page to reconnect.</Paper>
+  }
   if (sessionState === IN_SESSION) {
     return (
       <WaitingRoom 
