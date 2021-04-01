@@ -1,9 +1,14 @@
 const { MongoClient, Db } = require("mongodb");
 const User = require("../models/user");
 class Database {
+  async getClient() {
+    if (this.client) return this.client;
+    this.client = await MongoClient.connect(process.env.DB_URL);
+    return this.client;
+  }
+
   async findOrCreateUserFromLTI(launchInfo) {
-    const client = await MongoClient.connect(process.env.DB_URL);
-    
+    const client = await this.getClient();
     const db = client.db(process.env.DB_NAME);
     
     const user = await db.collection("users").findOne({
@@ -20,8 +25,7 @@ class Database {
   }
 
   async createAndAssociateCourse(launchInfo) {
-    const client = await MongoClient.connect(process.env.DB_URL);
-    
+    const client = await this.getClient();
     const db = client.db(process.env.DB_NAME);
     const course = await db.collection("courses").findOne({
       lmsUserId: launchInfo.userId,
@@ -43,15 +47,14 @@ class Database {
   }
 
   async getCourses(lmsUserId) {
-    const client = await MongoClient.connect(process.env.DB_URL);
+    const client = await this.getClient();
     const db = client.db(process.env.DB_NAME);
     const courses = await db.collection("courses").find({ lmsUserId }).toArray();
     return courses;
   }
 
   async getCurrentSession(jwtBody) {
-    console.log(jwtBody);
-    const client = await MongoClient.connect(process.env.DB_URL);
+    const client = await this.getClient();
     const db = client.db(process.env.DB_NAME);
     return db.collection("sessions").findOne({
       lmsUserId: jwtBody.lmsUserId
@@ -60,7 +63,7 @@ class Database {
 
   async getCurrentCourseSession(jwtBody) {
     console.log(jwtBody);
-    const client = await MongoClient.connect(process.env.DB_URL);
+    const client = await this.getClient();
     const db = client.db(process.env.DB_NAME);
     return db.collection("sessions").findOne({
       selectedCourses: jwtBody.courseId,
@@ -68,7 +71,7 @@ class Database {
   }
 
   async createSession(session) {
-    const client = await MongoClient.connect(process.env.DB_URL);
+    const client = await this.getClient();
     const db = client.db(process.env.DB_NAME);
 
     const result = await db.collection("sessions").insertOne(session);
@@ -76,15 +79,14 @@ class Database {
   }
 
   async destroySession(lmsUserId) {
-    const client = await MongoClient.connect(process.env.DB_URL);
+    const client = await this.getClient();
     const db = client.db(process.env.DB_NAME);
 
     await db.collection("sessions").deleteOne({ lmsUserId });
   }
 
   async updateSessionParticipants(sessionId, participants) {
-    const client = await MongoClient.connect(process.env.DB_URL);
-    const db = client.db(process.env.DB_NAME);
+    const db = this.client.db(process.env.DB_NAME);
 
     await db.collection("sessions").updateOne({ _id: sessionId }, { 
       $set: { participants }
@@ -92,8 +94,7 @@ class Database {
   }
 
   async updateMessages(sessionId, messages) {
-    const client = await MongoClient.connect(process.env.DB_URL);
-    const db = client.db(process.env.DB_NAME);
+    const db = this.client.db(process.env.DB_NAME);
 
     await db.collection("sessions").updateOne({ _id: sessionId }, { 
       $set: { messages }

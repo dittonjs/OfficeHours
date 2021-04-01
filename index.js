@@ -136,10 +136,12 @@ io.on('connection', async (socket) => {
                 present: true,
               }
             ];
+            console.log("CURRENT PARTICIPANTS", currentSession.participants);
             await database.updateSessionParticipants(currentSession._id, currentSession.participants);  
             socket.on("disconnect", async () => {
               console.log("USER DISCONNECTED")
               const currentSession = await database.getCurrentCourseSession(jwtBody);
+              if (!currentSession) return;
               const currentParticipant = _.find(currentSession.participants, p => p.lmsUserId === jwtBody.lmsUserId);
               if (currentParticipant) {
                 currentParticipant.present = false;

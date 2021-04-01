@@ -11,7 +11,7 @@ export default ({ sendMessage, messages, participants, leaveMeeting, playAudio, 
   const myPosition = _.findIndex(participants, pId => pId === window.DEFAULT_SETTINGS.userId);
   let message = "";
   if(myPosition === 0) {
-    message = "You are next in line! You will be let into the meeting shortly.";
+    message = "You are next in line! Your instructor is currently meeting with the person infront of you. You will be let into the meeting as soon as they are done.";
   } else if (myPosition === 1) {
     message = "There is 1 person ahead of you."
   } else {
