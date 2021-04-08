@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const { v4: uuidv4 } = require('uuid');
 const { setupLti } = require("./server/lib/lti_support");
 const database = new (require('./server/database/database'));
+const Cache = require('./server/database/cache');
 
 const port = parseInt(process.env.PORT, 10) || parseInt(process.env.APP_PORT, 10);
 
@@ -39,6 +40,9 @@ app.get('/', (req, res) => {
 
 require("./server/api/api")(app);
 
+
+const sessionCache = new Cache();
+
 io.on('connection', async (socket) => {
   
 
@@ -63,6 +67,7 @@ io.on('connection', async (socket) => {
                 participants: [],
                 messages: [],
               });
+              sessionCache.setSession(jwtBody.lmsUserId, currentSession);
               // console.log(currentSession);
               socket.emit('current state', 'IN_SESSION');
               currentSession.selectedCourses.forEach((courseId) => {
@@ -97,6 +102,7 @@ io.on('connection', async (socket) => {
     try {
       const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
       if (jwtBody.isInstructor) {
+        sessionCache.clearSession(jwtBody.lmsUserId);
         const currentSession = await database.destroySession(jwtBody.lmsUserId);
         socket.emit('current state', 'CREATING_SESSION');
         socket.to(`session ${jwtBody.lmsUserId}`).emit('no session');
@@ -110,21 +116,26 @@ io.on('connection', async (socket) => {
     try {
       const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
       if (jwtBody.isInstructor) {
-        const currentSession = await database.getCurrentSession(jwtBody);
+        // const currentSession = await database.getCurrentSession(jwtBody);
+        let currentSession = sessionCache.getSession(jwtBody.lmsUserId);
+        // server has restarted since session initiated
+        if (!currentSession) currentSession = await database.getCurrentSession(jwtBody);
+        
         // THE ROOM FOR THE ACTUAL SESSION
         socket.join(`session ${currentSession.lmsUserId}`);
         socket.emit('session info', currentSession);
         socket.emit('messages', currentSession.messages);
       } else {
-        const currentSession = await database.getCurrentCourseSession(jwtBody);
+        let currentSession = sessionCache.getSessionForCourse(jwtBody.courseId);
+        // server has restarted since session initiated
+        if (!currentSession) currentSession = await database.getCurrentCourseSession(jwtBody);
         if (currentSession) {
           socket.join(`session ${currentSession.lmsUserId}`);
           socket.emit('session joined', currentSession._id);
           const currentParticipant = _.find(currentSession.participants, p => p.lmsUserId === jwtBody.lmsUserId);
           if (!currentParticipant) {
             console.log("ADDING TO QUEUE");
-            currentSession.participants = [
-              ...currentSession.participants,
+            currentSession.participants.push(
               {
                 name: jwtBody.name,
                 courseId: jwtBody.courseId,
@@ -135,7 +146,9 @@ io.on('connection', async (socket) => {
                 status: 'waiting',
                 present: true,
               }
-            ];
+            );
+              
+            
             console.log("CURRENT PARTICIPANTS", currentSession.participants);
             await database.updateSessionParticipants(currentSession._id, currentSession.participants);  
             socket.on("disconnect", async () => {
@@ -186,7 +199,9 @@ io.on('connection', async (socket) => {
     try {
       const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
       if (jwtBody.isInstructor || lmsUserId == jwtBody.lmsUserId) {
-        const currentSession = await database.getCurrentCourseSession(jwtBody);
+        let currentSession = sessionCache.getSessionForCourse(jwtBody.courseId);
+        // server has restarted since session initiated
+        if (!currentSession) currentSession = await database.getCurrentCourseSession(jwtBody);
         _.remove(currentSession.participants, p => p.lmsUserId === lmsUserId );
         await database.updateSessionParticipants(currentSession._id, currentSession.participants);
         io
@@ -206,7 +221,9 @@ io.on('connection', async (socket) => {
     try {
       const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
       if (jwtBody.isInstructor) {
-        const currentSession = await database.getCurrentCourseSession(jwtBody);
+        let currentSession = sessionCache.getSessionForCourse(jwtBody.courseId);
+        // server has restarted since session initiated
+        if (!currentSession) currentSession = await database.getCurrentCourseSession(jwtBody);
         _.remove(currentSession.participants, p => p.lmsUserId === lmsUserId );
         await database.updateSessionParticipants(currentSession._id, currentSession.participants);
         io
@@ -228,7 +245,9 @@ io.on('connection', async (socket) => {
   socket.on('message', async(message) => {
     try {
       const jwtBody = jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
-      const currentSession = await database.getCurrentCourseSession(jwtBody);
+      let currentSession = sessionCache.getSessionForCourse(jwtBody.courseId);
+        // server has restarted since session initiated
+      if (!currentSession) currentSession = await database.getCurrentCourseSession(jwtBody);
       const messageJson = {
         body: message,
         name: jwtBody.name,
